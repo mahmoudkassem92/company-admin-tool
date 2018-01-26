@@ -1,4 +1,3 @@
-
 package company.mahmoud.controllers;
 
 import com.google.common.collect.Lists;
@@ -11,6 +10,7 @@ import java.util.List;
 import company.mahmoud.models.CompanyDao;
 import company.mahmoud.models.Employee;
 import company.mahmoud.models.EmployeeDao;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,11 +43,27 @@ public class EmployeeController {
         return Lists.newArrayList(companyDao.findOne(companyId).getEmployees());
     }
 
+    /**
+     *
+     * @param employeeId
+     * @return employee details
+     */
     @RequestMapping(value = "/employees/{employeeId}",
             method = RequestMethod.GET)
     @ResponseBody
     public Employee getEmployeeDetails(
             @PathVariable("employeeId") long employeeId) {
+        this.validateEmployee(employeeId);
+        return employeeDao.findOne(employeeId);
+    }
+
+    @RequestMapping(value = "/companies/{companyId}/employees/{employeeId}",
+            method = RequestMethod.GET)
+    @ResponseBody
+    public Employee getCompanyEmployeeDetails(
+            @PathVariable("employeeId") long employeeId,
+            @PathVariable("companyId") long companyId) {
+        this.validateCompany(companyId);
         this.validateEmployee(employeeId);
         return employeeDao.findOne(employeeId);
     }
@@ -97,7 +113,7 @@ public class EmployeeController {
             headers = "Accept=application/json")
     public ResponseEntity<?> createCompanyEmployee(
             @PathVariable("companyId") long companyId,
-            @RequestBody Employee employee
+            @Valid @RequestBody(required = true) Employee employee
     ) {
         this.validateCompany(companyId);
 
@@ -118,7 +134,7 @@ public class EmployeeController {
     public ResponseEntity<?> updateEmployee(
             @PathVariable("companyId") long companyId,
             @PathVariable("employeeId") long employeeId,
-            @RequestBody Employee employee
+            @Valid @RequestBody(required = true) Employee employee
     ) {
 
         this.validateCompany(companyId);
